@@ -2,14 +2,30 @@ import { Link, NavLink } from "react-router";
 import Logo from "../Logo/Logo";
 import Button from "../Button/Button";
 import NavbarDrawer from "./NavbarDrawer";
+import useAuth from "../../../hooks/useAuth";
+import UserMenu from "../UserMenu/UserMenu";
 
 const Navbar = () => {
-    const navLinks = <>
-        <NavLink className="hover:text-primary duration-300 transition-all ease-in-out" to="/">Home</NavLink>
-        <NavLink className="hover:text-primary duration-300 transition-all ease-in-out" to="/all-tickets">All Tickets</NavLink>
-    </>
+  const { user } = useAuth();
 
-    // Home , All Tickets , Dashboard (private) → Login / Register (only when not logged in)
+  const navLinks = (
+    <>
+      <NavLink
+        className="hover:text-primary duration-300 transition-all ease-in-out"
+        to="/"
+      >
+        Home
+      </NavLink>
+      <NavLink
+        className="hover:text-primary duration-300 transition-all ease-in-out"
+        to="/all-tickets"
+      >
+        All Tickets
+      </NavLink>
+    </>
+  );
+
+  // Home , All Tickets , Dashboard (private) → Login / Register (only when not logged in)
 
   return (
     <div className="max-lg:collapse w-full md:py-4">
@@ -20,9 +36,9 @@ const Navbar = () => {
       ></label>
       <div className="collapse-title navbar">
         <div className="navbar-start">
-          <NavbarDrawer navLinks={navLinks}/>
+          <NavbarDrawer navLinks={navLinks} />
           <Link className="hidden md:block" to="/">
-            <Logo/>
+            <Logo />
           </Link>
         </div>
         <div className="navbar-center hidden lg:flex">
@@ -31,15 +47,20 @@ const Navbar = () => {
           </ul>
         </div>
         <div className="navbar-end">
-          <Button text="Login" className="hidden md:block"/>
-          <Logo className="md:hidden"/>
+          {user ? (
+            <UserMenu />
+          ) : (
+            <Link to="/login">
+              <Button text="Login" className="hidden md:block" />
+            </Link>
+          )}
+
+          <Logo className="md:hidden" />
         </div>
       </div>
 
       <div className="collapse-content lg:hidden z-1">
-        <ul className="menu">
-          {navLinks}
-        </ul>
+        <ul className="menu">{navLinks}</ul>
       </div>
     </div>
   );
