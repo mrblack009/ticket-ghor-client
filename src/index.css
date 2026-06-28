@@ -1,0 +1,25 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@100..900&display=swap');
+
+
+@import "tailwindcss";
+@plugin "daisyui";
+
+@plugin "daisyui/theme" {
+  name: light;
+  default: true;
+  --color-primary: #ED4C67;
+  /* --color-primary: #7e5ffa; */
+  --color-secondary: #273338;
+
+}
+
+
+
+
+body{
+  font-family: "Roboto Slab", serif;
+}
+
+.active{
+  color: #ED4C67;
+}
