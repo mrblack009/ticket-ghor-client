@@ -1,9 +1,8 @@
 import { Link } from "react-router"; // Adjust imports based on your router version
 import { FaBus, FaTrain, FaShip, FaPlane, FaMapMarkerAlt, FaClock, FaCheckCircle } from "react-icons/fa";
 import useAllTickets from "../../hooks/useAllTickets";
-import Button from "../../components/Shared/Button/Button";
 
-const AllTickets = () => {
+const AllTicketsPage2 = () => {
   const { tickets, loading, error } = useAllTickets();
 
   // 🛡️ Filter only admin-approved tickets
@@ -148,12 +147,8 @@ const AllTickets = () => {
           ))}
         </div>
       )}
-
-      <div className="mx-auto mt-8">
-        <Link to="/all-tickets"><Button className="" text="All Tickets"></Button></Link>
-      </div>
     </div>
   );
 };
 
-export default AllTickets;
+export default AllTicketsPage2;

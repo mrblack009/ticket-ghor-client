@@ -16,6 +16,7 @@ import RequestedBookings from "../pages/Dashboard/VendorDashboard/RequestedBooki
 import RevenueOverview from "../pages/Dashboard/VendorDashboard/RevenueOverview";
 import AdvertiseTickets from "../pages/Dashboard/AdminDashboard/AdvertiseTickets";
 import TicketDetails from "../pages/AllTicketPages/TicketDetails";
+import AllTicketsPage2 from "../pages/AllTicketPages/AllTicketPage2";
 
 const router = createBrowserRouter([
   {
@@ -25,6 +26,10 @@ const router = createBrowserRouter([
         {
             index: true,
             Component: Home,
+        },
+        {
+          path: "/all-tickets",
+          Component: AllTicketsPage2,
         },
         {
           path: "/ticket/:id",
