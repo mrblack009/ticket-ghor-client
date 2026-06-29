@@ -16,14 +16,6 @@
 }
 
 
-
-
 body{
   font-family: "Roboto Slab", serif;
-}
-
-.active{
-  color: #ED4C67;
-  padding: 2px 6px;
-  border-radius: 4px;
 }

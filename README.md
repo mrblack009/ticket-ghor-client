@@ -1,16 +1,50 @@
-# React + Vite
+# TicketGhor (Client-Side) - Online Ticket Booking Platform
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+TicketGhor is a fully responsive MERN-stack application where users can seamlessly discover and book travel tickets (Bus, Train, Launch, Flight etc.). This repository contains the complete user-interface application code developed using React, Vite, and Tailwind CSS.
 
-Currently, two official plugins are available:
+## Project Links
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Live Production Site:** `https://ticket-ghor-client.vercel.app`
+- **Server-Side Repository:** `https://github.com/mrblack009/ticket-ghor-server.git`
 
-## React Compiler
+## Key Client Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Role-Based Routing:** Structured dashboards separated dynamically into three user states: **User, Vendor, and Admin**.
+- **Advanced Search & Discovery:** Multi-conditional filtering options covering _From $\rightarrow$ To_ inputs, transport modes, and sorted price lists.
+- **Dynamic Cart & Stock Guard:** Real-time checking against available inventories with an automated countdown utility tied to ticket departure times.
+- **Seamless Payment Checkouts:** Built-in Stripe interface processing for straightforward transaction completion after vendor approval.
+- **Complete User Ledger:** Grid and tabular logs recording historical user bookings, current status parameters, and Stripe transaction IDs.
+- **Theming Framework:** Global Light/Dark mode state toggle following strict alignment metrics.
 
-## Expanding the ESLint configuration
+## Used npm Packages
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- `react` - Main interface framework core
+- `react-router` - Client-side routing engine
+- `tailwindcss` / `daisyui` - Utility styling engine and UI components
+  `swiper` - Modern touch slider for the homepage feature carousel
+- `axios` - Promise-based HTTP client for backend API communication
+- `firebase` - Backend/Authentication services infrastructure
+- `framer-motion` - Production-ready motion library for fluid UI animations
+- `react-hook-form` - Performant, flexible, and extensible forms validation
+- `chart.js` / `react-chartjs-2` (or `recharts`) - Graph utilities for vendor revenue dashboards
+- `lucide-react` / `react-icons` - Modern clean iconography sets
+- `sweetalert2` / `react-hot-toast` - Interactive UI notification modals
+- `@stripe/stripe-js` / `@stripe/react-stripe-js` - Secure payment interface integration
+
+## Environment Configuration (`.env.local`)
+
+Create a `.env.local` file in your frontend root folder and configure your variables:
+
+```env
+
+apiKey:import.meta.env.VITE_apiKey, 
+authDomain:import.meta.env.VITE_authDomain,
+projectId:import.meta.env.VITE_projectId, 
+storageBucket:import.meta.env.VITE_storageBucket, 
+messagingSenderId:import.meta.env.VITE_messagingSenderId, 
+appId:import.meta.env.VITE_appId
+
+VITE_IMGBB_API_KEY=your_imgbb_api_key
+VITE_STRIPE_PUBLIC_KEY=your_stripe_publishable_key
+
+```

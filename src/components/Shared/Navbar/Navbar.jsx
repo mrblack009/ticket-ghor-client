@@ -4,6 +4,7 @@ import Button from "../Button/Button";
 import NavbarDrawer from "./NavbarDrawer";
 import useAuth from "../../../hooks/useAuth";
 import UserMenu from "../UserMenu/UserMenu";
+import "./Navbar.css";
 
 const Navbar = () => {
   const { user } = useAuth();
