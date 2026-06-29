@@ -24,10 +24,11 @@ const Register = () => {
    const onSubmit = async (data) => {
     try {
       const userInfo = {
-        role: "admin",
+        role: "user",
         createdAt: new Date(),
         updatedAt: new Date(),
         photoURL: '',
+        isFraud: false,
         emailVerified: false,
         ...data};
 

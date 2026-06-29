@@ -1,5 +1,6 @@
 import { FaRegUserCircle } from "react-icons/fa";
 import useAuth from "../../../hooks/useAuth";
+import { Link } from "react-router";
 
 const UserMenu = () => {
   const { logOut, user } = useAuth();
@@ -39,9 +40,9 @@ const UserMenu = () => {
         className="menu menu-sm dropdown-content bg-base-100 border border-primary/20 rounded-box z-10 mt-3 w-56 p-2 shadow-xl"
       >
         <li>
-          <button className="hover:bg-primary hover:text-primary-content">
-            Profile
-          </button>
+          <Link to="/dashboard" className="hover:bg-primary hover:text-primary-content">
+            Dashboard
+          </Link>
         </li>
 
         <li>
