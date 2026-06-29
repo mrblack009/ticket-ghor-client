@@ -4,7 +4,7 @@
 @import "tailwindcss";
  @plugin "daisyui" {
    themes: light --default;
- }
+ };
 
 @plugin "daisyui/theme" {
   name: light;
@@ -24,4 +24,6 @@ body{
 
 .active{
   color: #ED4C67;
+  padding: 2px 6px;
+  border-radius: 4px;
 }

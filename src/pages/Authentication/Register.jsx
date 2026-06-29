@@ -56,11 +56,11 @@ const Register = () => {
        console.log(axRes);
       
 
+       navigate("/dashboard");
       // reset form data
       reset();
 
       // navigate to home or dashboard
-      navigate("/");
     } catch (error) {
       console.log(error.message);
     }
