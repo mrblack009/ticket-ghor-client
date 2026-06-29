@@ -5,50 +5,71 @@ import Logo from "../Logo/Logo";
 
 const NavbarDrawer = ({ navLinks }) => {
   return (
-    <div className="drawer  drawer-end lg:hidden">
-      <input id="my-drawer-5" type="checkbox" className="drawer-toggle" />
+    <div className="drawer drawer-end lg:hidden">
+      <input
+        id="my-drawer-5"
+        type="checkbox"
+        className="drawer-toggle"
+      />
+
+      {/* Drawer Button */}
       <div className="drawer-content">
-        {/* Page content here */}
-        <label htmlFor="my-drawer-5" className="btn drawer-button btn-sm">
-          {/* <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h8m-8 6h16" /> </svg> */}
-          <CiMenuBurger className="h-4 w-4"/>
+        <label
+          htmlFor="my-drawer-5"
+          className="btn btn-sm drawer-button"
+        >
+          <CiMenuBurger className="w-4 h-4" />
         </label>
       </div>
-      <div className="drawer-side ">
-        <div className="w-full h-full backdrop-blur-sm"></div>
-        <ul className="w-2/3 h-full space-y-2 bg-white py-4">
-          <li className="flex justify-between items-center px-4">
+
+      {/* Drawer */}
+      <div className="drawer-side fixed inset-0 z-[9999]">
+        {/* Overlay */}
+        <label
+          htmlFor="my-drawer-5"
+          aria-label="Close Sidebar"
+          className="drawer-overlay bg-black/30 backdrop-blur-sm"
+        ></label>
+
+        {/* Sidebar */}
+        <div className="w-72 min-h-full bg-white shadow-2xl flex flex-col">
+          {/* Header */}
+          <div className="flex items-center justify-between px-4 py-4 border-b">
             <Logo />
+
             <label
               htmlFor="my-drawer-5"
-              aria-label="close sidebar"
               className="btn btn-primary btn-sm"
             >
-              <MdOutlineClose className="w-4 h-4"/>
+              <MdOutlineClose className="w-4 h-4" />
             </label>
-          </li>
-          <span className="divider"></span>
-          <ul className="px-4 flex flex-col gap-4 font-medium">
+          </div>
+
+          {/* Menu */}
+          <ul className="menu p-4 gap-2 text-base font-medium flex-1">
             {navLinks}
-            </ul>
-          <span className="divider"></span>
-          <li className="">
-            <NavLink
-              className="block text-sm  px-4 font-medium hover:bg-secondary hover:text-white duration-300 py-1"
-              to="/registeer"
-            >
-              Register
-            </NavLink>
-          </li>
-          <li className="">
-            <NavLink
-              className="block text-sm px-4 font-medium hover:bg-secondary hover:text-white duration-300 py-1"
-              to="/login"
-            >
-              Login
-            </NavLink>
-          </li>
-        </ul>
+
+            <div className="divider my-2"></div>
+
+            <li>
+              <NavLink
+                to="/register"
+                className="hover:bg-primary hover:text-white duration-300"
+              >
+                Register
+              </NavLink>
+            </li>
+
+            <li>
+              <NavLink
+                to="/login"
+                className="hover:bg-primary hover:text-white duration-300"
+              >
+                Login
+              </NavLink>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
   );

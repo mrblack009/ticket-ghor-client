@@ -20,6 +20,7 @@ import AllTicketsPage2 from "../pages/AllTicketPages/AllTicketPage2";
 import PrivateRoute from "./PrivateRoute";
 import AdminRoute from "./AdminRoute";
 import VendorRoute from "./VendorRoute";
+import CheckoutPage from "../pages/CheckoutPage/CheckoutPage";
 
 const router = createBrowserRouter([
   {
@@ -70,6 +71,14 @@ const router = createBrowserRouter([
         element: (
           <PrivateRoute>
             <MyBookedTickets />{" "}
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "checkout/:id",
+        element: (
+          <PrivateRoute>
+            <CheckoutPage />{" "}
           </PrivateRoute>
         ),
       },

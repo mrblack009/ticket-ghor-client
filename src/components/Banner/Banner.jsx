@@ -141,7 +141,7 @@ const Banner = () => {
             <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/80 to-black/60 z-10" />
 
             {/* Slide Content Wrapper Centered  */}
-            <div className="relative w-full h-full flex items-center justify-center z-10 text-center">
+            <div className="relative w-full h-full flex items-center justify-center text-center">
               <Container>
                 <div className="max-w-3xl mx-auto px-4 md:px-8 text-white flex flex-col items-center justify-center">
                   <AnimatePresence mode="wait">

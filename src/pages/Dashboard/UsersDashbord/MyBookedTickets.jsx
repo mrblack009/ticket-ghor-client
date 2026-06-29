@@ -68,7 +68,7 @@ const MyBookedTickets = () => {
 
   const handlePaymentRedirect = (bookingId) => {
     // Redirects user to Stripe checkout page/route passing the booking object context
-    window.location.href = `/checkout/${bookingId}`;
+    window.location.href = `/dashboard/checkout/${bookingId}`;
   };
 
   const getStatusBadge = (status) => {

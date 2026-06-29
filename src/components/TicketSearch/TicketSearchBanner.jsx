@@ -2,25 +2,23 @@ import { useState } from "react";
 import { FaBus, FaTrain, FaPlane } from "react-icons/fa";
 
 const TicketSearchBanner = () => {
-
   const [activeTab, setActiveTab] = useState("bus");
   const [fromLocation, setFromLocation] = useState("");
   const [toLocation, setToLocation] = useState("");
 
   const handleSearch = (e) => {
     e.preventDefault();
-    console.log("Searching for:", { transport: activeTab, from: fromLocation, to: toLocation });
-    
+    console.log("Searching for:", {
+      transport: activeTab,
+      from: fromLocation,
+      to: toLocation,
+    });
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto px-4 mt-6">
-     
+    <div className="w-full md:max-w-5xl mx-auto px-4 mt-6">
       <div className="bg-base-100 rounded-2xl border border-base-200 shadow-2xl p-4 md:p-5">
-        
-       
-        <div className="grid grid-cols-3 bg-base-200/60 p-1.5 rounded-xl gap-2 mb-4">
-         
+        <div className="grid grid-cols-1 md:grid-cols-3 bg-base-200/60 p-1.5 rounded-xl gap-2 mb-4">
           <button
             onClick={() => setActiveTab("bus")}
             className={`flex items-center justify-center gap-2 py-3 text-sm font-bold uppercase tracking-wider rounded-lg transition-all ${
@@ -32,7 +30,6 @@ const TicketSearchBanner = () => {
             <FaBus className={activeTab === "bus" ? "text-success" : ""} /> Bus
           </button>
 
-         
           <button
             onClick={() => setActiveTab("train")}
             className={`flex items-center justify-center gap-2 py-3 text-sm font-bold uppercase tracking-wider rounded-lg transition-all ${
@@ -41,10 +38,10 @@ const TicketSearchBanner = () => {
                 : "text-gray-500 hover:bg-base-200"
             }`}
           >
-            <FaTrain className={activeTab === "train" ? "text-primary" : ""} /> Train
+            <FaTrain className={activeTab === "train" ? "text-primary" : ""} />{" "}
+            Train
           </button>
 
-          
           <button
             onClick={() => setActiveTab("flight")}
             className={`flex items-center justify-center gap-2 py-3 text-sm font-bold uppercase tracking-wider rounded-lg transition-all ${
@@ -53,12 +50,17 @@ const TicketSearchBanner = () => {
                 : "text-gray-500 hover:bg-base-200"
             }`}
           >
-            <FaPlane className={activeTab === "flight" ? "text-secondary" : ""} /> Flight
+            <FaPlane
+              className={activeTab === "flight" ? "text-secondary" : ""}
+            />{" "}
+            Flight
           </button>
         </div>
 
-       
-        <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+        <form
+          onSubmit={handleSearch}
+          className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center"
+        >
           {/* From Input Field */}
           <div className="md:col-span-5 relative">
             <input
@@ -71,7 +73,6 @@ const TicketSearchBanner = () => {
             />
           </div>
 
-         
           <div className="md:col-span-5 relative">
             <input
               type="text"
@@ -83,7 +84,6 @@ const TicketSearchBanner = () => {
             />
           </div>
 
-         
           <div className="md:col-span-2 w-full">
             <button
               type="submit"
@@ -93,7 +93,6 @@ const TicketSearchBanner = () => {
             </button>
           </div>
         </form>
-
       </div>
     </div>
   );

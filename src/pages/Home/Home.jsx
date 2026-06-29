@@ -16,7 +16,7 @@ const Home = () => {
     <>
       <div className="relative mb-24">
         <Banner />
-        <div className="absolute -bottom-20 z-90 left-1/2 -translate-x-1/2">
+        <div className="md:absolute md:-bottom-20 md:z-10 md:left-1/2 md:-translate-x-1/2">
           <TicketSearchBanner />
         </div>
       </div>

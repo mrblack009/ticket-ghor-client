@@ -9,8 +9,8 @@ const DashboardLayout = () => {
   const { user } = useUser();
   const { logOut } = useAuth();
   return (
-    <div className="grid grid-cols-12 min-h-screen">
-      <div className="col-span-3 bg-secondary text-white flex flex-col">
+    <div className="grid grid-cols-1 md:grid-cols-12 min-h-screen">
+      <div className="md:col-span-3 bg-secondary text-white flex flex-col">
         <div className="px-10 my-6">
           <Logo logoFooter={true} />
         </div>
@@ -90,7 +90,7 @@ const DashboardLayout = () => {
           </button>
         </div>
       </div>
-      <div className="col-span-9">
+      <div className="grid-cols-1 col-span-9">
         <div className="p-8">
           <h2 className="text-2xl font-bold">My Profile</h2>
           <span className="divider"></span>
