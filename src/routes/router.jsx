@@ -15,6 +15,7 @@ import MyAddedTickets from "../pages/Dashboard/VendorDashboard/MyAddedTickets";
 import RequestedBookings from "../pages/Dashboard/VendorDashboard/RequestedBookings";
 import RevenueOverview from "../pages/Dashboard/VendorDashboard/RevenueOverview";
 import AdvertiseTickets from "../pages/Dashboard/AdminDashboard/AdvertiseTickets";
+import TicketDetails from "../pages/AllTicketPages/TicketDetails";
 
 const router = createBrowserRouter([
   {
@@ -24,6 +25,10 @@ const router = createBrowserRouter([
         {
             index: true,
             Component: Home,
+        },
+        {
+          path: "/ticket/:id",
+          Component: TicketDetails,
         }
     ]
   },

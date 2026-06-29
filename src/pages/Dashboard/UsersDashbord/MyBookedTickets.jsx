@@ -1,183 +1,162 @@
 import { useEffect, useState } from "react";
 
-/* ---------------- Ticket Countdown ---------------- */
+import { FaClock, FaMapMarkerAlt, FaCheckCircle, FaHourglassHalf, FaTimesCircle, FaCreditCard } from "react-icons/fa";
+import useAuth from "../../../hooks/useAuth";
+import api from "../../../api/api";
 
-const TicketCountdown = ({ departureTime, status }) => {
+// Separate Timer Component for maintaining isolated interval countdowns
+const BookingCountdown = ({ departureTime, status }) => {
   const [timeLeft, setTimeLeft] = useState("");
-  const [isPassed, setIsPassed] = useState(false);
+  const [isPast, setIsPast] = useState(false);
 
   useEffect(() => {
-    if (status === "rejected") return;
+    // Requirement check: Remove countdown if vendor rejects the request
+    if (status === "rejected") {
+      setTimeLeft("");
+      return;
+    }
 
-    const timer = setInterval(() => {
+    const interval = setInterval(() => {
       const difference = new Date(departureTime) - new Date();
 
       if (difference <= 0) {
-        setTimeLeft("Departure time passed");
-        setIsPassed(true);
-        clearInterval(timer);
-        return;
+        setTimeLeft("Expired");
+        setIsPast(true);
+        clearInterval(interval);
+      } else {
+        const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
+        const minutes = Math.floor((difference / 1000 / 60) % 60);
+        const seconds = Math.floor((difference / 1000) % 60);
+        setTimeLeft(`${days}d ${hours}h ${minutes}m ${seconds}s`);
       }
-
-      const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
-      const minutes = Math.floor((difference / (1000 * 60)) % 60);
-      const seconds = Math.floor((difference / 1000) % 60);
-
-      setTimeLeft(`${days}d ${hours}h ${minutes}m ${seconds}s`);
     }, 1000);
 
-    return () => clearInterval(timer);
+    return () => clearInterval(interval);
   }, [departureTime, status]);
 
-  if (status === "rejected") return null;
+  if (status === "rejected" || !timeLeft) return null;
 
   return (
-    <div
-      className={`mt-3 rounded-lg p-2 text-center text-xs font-semibold ${
-        isPassed
-          ? "bg-error/10 text-error"
-          : "bg-warning/10 text-warning"
-      }`}
-    >
-      ⏱️ {timeLeft}
+    <div className={`text-xs font-mono font-bold flex items-center gap-1.5 p-2 rounded-lg border ${
+      isPast ? "bg-error/10 text-error border-error/20" : "bg-info/10 text-info border-info/20"
+    }`}>
+      <FaClock className={isPast ? "" : "animate-pulse"} />
+      <span>{timeLeft}</span>
     </div>
   );
 };
 
-/* ---------------- My Booked Tickets ---------------- */
-
 const MyBookedTickets = () => {
-  const bookings = [
-    {
-      _id: "b1",
-      ticketTitle: "Green Line Scania Multi-Axle",
-      image:
-        "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=400&h=250&q=80",
-      bookingQuantity: 2,
-      unitPrice: 1200,
-      from: "Dhaka",
-      to: "Cox's Bazar",
-      departureDateTime: "2026-07-15T22:00:00",
-      status: "accepted",
-    },
-    {
-      _id: "b2",
-      ticketTitle: "Suborna Express AC Snigdha",
-      image:
-        "https://images.unsplash.com/photo-1515165504669-423042d330d6?auto=format&fit=crop&w=400&h=250&q=80",
-      bookingQuantity: 1,
-      unitPrice: 800,
-      from: "Dhaka",
-      to: "Chittagong",
-      departureDateTime: "2026-06-10T07:00:00",
-      status: "pending",
-    },
-  ];
+  const { user } = useAuth();
+  const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const statusStyles = {
-    pending: "badge badge-warning",
-    accepted: "badge badge-success",
-    rejected: "badge badge-error",
-    paid: "badge badge-info",
+  useEffect(() => {
+    if (user?.email) {
+      api.get(`/my-bookings/${user.email}`)
+        .then((res) => {
+          setBookings(res.data || []);
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.error(err);
+          setLoading(false);
+        });
+    }
+  }, [user]);
+
+  const handlePaymentRedirect = (bookingId) => {
+    // Redirects user to Stripe checkout page/route passing the booking object context
+    window.location.href = `/checkout/${bookingId}`;
   };
 
-  const handlePayment = (bookingId, amount) => {
-    console.log(bookingId, amount);
-    alert(`Redirecting to payment for ৳${amount}`);
+  const getStatusBadge = (status) => {
+    switch (status) {
+      case "pending": return <span className="badge badge-warning font-bold uppercase gap-1 text-[10px] py-2.5 px-3"><FaHourglassHalf /> Pending</span>;
+      case "accepted": return <span className="badge badge-info text-white font-bold uppercase gap-1 text-[10px] py-2.5 px-3"><FaCheckCircle /> Accepted</span>;
+      case "rejected": return <span className="badge badge-error text-white font-bold uppercase gap-1 text-[10px] py-2.5 px-3"><FaTimesCircle /> Rejected</span>;
+      case "paid": return <span className="badge badge-success text-white font-bold uppercase gap-1 text-[10px] py-2.5 px-3"><FaCheckCircle /> Paid</span>;
+      default: return <span className="badge badge-ghost font-bold uppercase text-[10px] py-2.5 px-3">{status}</span>;
+    }
   };
+
+  if (loading) return <div className="flex justify-center items-center py-32"><span className="loading loading-spinner loading-lg text-primary"></span></div>;
 
   return (
-    <div>
-      <h2 className="text-3xl font-bold mb-8">My Booked Tickets</h2>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-        {bookings.map((ticket) => {
-          const totalPrice =
-            ticket.bookingQuantity * ticket.unitPrice;
-
-          const isExpired =
-            new Date(ticket.departureDateTime) < new Date();
-
-          return (
-            <div
-              key={ticket._id}
-              className="card bg-base-100 shadow-xl border border-base-300"
-            >
-              <figure>
-                <img
-                  src={ticket.image}
-                  alt={ticket.ticketTitle}
-                  className="h-52 w-full object-cover"
-                />
-              </figure>
-
-              <div className="card-body">
-                <h2 className="card-title">
-                  {ticket.ticketTitle}
-                </h2>
-
-                <p>
-                  📍 {ticket.from} → {ticket.to}
-                </p>
-
-                <p className="text-sm opacity-70">
-                  📅{" "}
-                  {new Date(
-                    ticket.departureDateTime
-                  ).toLocaleString("en-BD", {
-                    dateStyle: "medium",
-                    timeStyle: "short",
-                  })}
-                </p>
-
-                <div className="divider my-1"></div>
-
-                <div className="flex justify-between">
-                  <span>
-                    Qty: <b>{ticket.bookingQuantity}</b>
-                  </span>
-
-                  <span className="font-bold text-primary">
-                    ৳ {totalPrice}
-                  </span>
-                </div>
-
-                <div className="flex justify-between items-center">
-                  <span>Status</span>
-
-                  <span className={statusStyles[ticket.status]}>
-                    {ticket.status}
-                  </span>
-                </div>
-
-                <TicketCountdown
-                  departureTime={ticket.departureDateTime}
-                  status={ticket.status}
-                />
-
-                {ticket.status === "accepted" && (
-                  <button
-                    disabled={isExpired}
-                    onClick={() =>
-                      handlePayment(ticket._id, totalPrice)
-                    }
-                    className={`btn mt-4 ${
-                      isExpired
-                        ? "btn-disabled"
-                        : "btn-primary"
-                    }`}
-                  >
-                    {isExpired
-                      ? "Expired"
-                      : "💳 Pay Now"}
-                  </button>
-                )}
-              </div>
-            </div>
-          );
-        })}
+    <div className="max-w-7xl mx-auto px-4 py-10">
+      <div className="mb-10 text-center">
+        <h2 className="text-4xl font-black tracking-tight">My Booked Tickets</h2>
+        <p className="text-gray-400 mt-2 text-sm">Track real-time approval status, timelines, and manage purchase completions.</p>
       </div>
+
+      {bookings.length === 0 ? (
+        <div className="text-center py-20 bg-base-200 rounded-2xl border border-dashed border-base-300">
+          <p className="text-xl font-semibold text-gray-400">You haven't booked any tickets yet.</p>
+        </div>
+      ) : (
+        /* 🚀 Requirement rule: Render items inside a 3 column grid layout grid */
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {bookings.map((booking) => {
+            const isDeparturePassed = new Date(booking.departure) <= new Date();
+            const showPayButton = booking.bookingStatus === "accepted" && !isDeparturePassed;
+
+            return (
+              <div key={booking._id} className="card bg-base-100 border border-base-200 shadow-xl overflow-hidden rounded-2xl flex flex-col justify-between">
+                <div>
+                  {/* Media / Image Box */}
+                  <figure className="h-44 bg-base-300">
+                    <img src={booking.image || "https://placehold.co/600x400"} alt={booking.ticketTitle} className="w-full h-full object-cover" />
+                  </figure>
+
+                  {/* Main Information body */}
+                  <div className="card-body p-6 space-y-3.5">
+                    <div className="flex justify-between items-start gap-2">
+                      <h3 className="card-title text-xl font-extrabold line-clamp-1">{booking.ticketTitle}</h3>
+                      {getStatusBadge(booking.bookingStatus)}
+                    </div>
+
+                    <div className="flex items-center gap-2 text-xs font-semibold text-gray-500 bg-base-200/60 p-2.5 rounded-xl">
+                      <FaMapMarkerAlt className="text-error" />
+                      <span className="truncate">{booking.from} ➔ {booking.to}</span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 text-xs font-medium border-y border-base-200 py-3">
+                      <div>
+                        <span className="text-gray-400 block uppercase tracking-wider text-[10px]">Quantity</span>
+                        <span className="font-bold text-base-content text-sm">{booking.quantity} Tickets</span>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-gray-400 block uppercase tracking-wider text-[10px]">Total Bill</span>
+                        <span className="font-black text-success text-sm">${Number(booking.totalPrice).toFixed(2)}</span>
+                      </div>
+                    </div>
+
+                    {/* Requirement rule: Live countdown timer setup based on conditions */}
+                    <BookingCountdown departureTime={booking.departure} status={booking.bookingStatus} />
+                  </div>
+                </div>
+
+                {/* Conditional Call to Actions (CTA) Footer block */}
+                <div className="px-6 pb-6 pt-2 mt-auto">
+                  {showPayButton ? (
+                    <button
+                      onClick={() => handlePaymentRedirect(booking._id)}
+                      className="btn btn-primary btn-block font-bold gap-2 text-sm shadow-md"
+                    >
+                      <FaCreditCard /> Pay Now
+                    </button>
+                  ) : booking.bookingStatus === "accepted" && isDeparturePassed ? (
+                    <button disabled className="btn btn-block btn-disabled text-xs font-bold uppercase tracking-wider">
+                      Payment Expired (Departure Passed)
+                    </button>
+                  ) : null}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };

@@ -1,52 +1,75 @@
-import React from 'react';
+import { useEffect, useState } from "react";
+import useAuth from "../../../hooks/useAuth";
+import api from "../../../api/api";
+import { FaReceipt, FaCalendarAlt, FaTicketAlt, FaDollarSign } from "react-icons/fa";
 
 const TransactionHistory = () => {
-  // ডামি স্ট্রাইপ ট্রানজেকশন হিস্ট্রি ডাটা
-  const transactions = [
-    {
-      transactionId: "tx_1N2b3c4d5e6f",
-      amount: 2400,
-      ticketTitle: "Green Line Scania Multi-Axle",
-      paymentDate: "2026-06-25"
-    },
-    {
-      transactionId: "tx_9Z8y7x6w5v4u",
-      amount: 1500,
-      ticketTitle: "US-Bangla Airlines (DAC-CGP)",
-      paymentDate: "2026-06-20"
+  const { user } = useAuth();
+  const [payments, setPayments] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (user?.email) {
+      api.get(`/my-payments/${user.email}`)
+        .then((res) => {
+          setPayments(res.data || []);
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.error(err);
+          setLoading(false);
+        });
     }
-  ];
+  }, [user]);
+
+  if (loading) return <div className="flex justify-center items-center py-32"><span className="loading loading-spinner loading-lg text-primary"></span></div>;
 
   return (
-    <div className="bg-white rounded-xl shadow-md p-6 border border-gray-100">
-      <h3 className="text-2xl font-bold text-gray-800 mb-6 border-b pb-3">Transaction History</h3>
-      
-      {/* Responsive Table Wrapper */}
-      <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse">
+    <div className="max-w-6xl mx-auto px-4 py-10">
+      {/* Header Info */}
+      <div className="mb-8">
+        <h2 className="text-3xl font-black tracking-tight">Transaction History</h2>
+        <p className="text-sm text-gray-400 mt-1">Review your successful purchase logs and billing payment records processed via Stripe.</p>
+      </div>
+
+      {/* Responsive Payments Table Layout */}
+      <div className="overflow-x-auto rounded-2xl border border-base-200 shadow-xl bg-base-100">
+        <table className="table w-full">
           <thead>
-            <tr className="bg-gray-100 text-gray-600 text-xs uppercase font-semibold tracking-wider">
-              <th className="p-4 rounded-l-lg">Transaction ID</th>
-              <th className="p-4">Ticket Title</th>
-              <th className="p-4">Amount</th>
-              <th className="p-4 rounded-r-lg">Payment Date</th>
+            <tr className="bg-base-200/80 text-sm">
+              <th><div className="flex items-center gap-1.5"><FaReceipt /> Transaction ID</div></th>
+              <th><div className="flex items-center gap-1.5"><FaTicketAlt /> Ticket Title</div></th>
+              <th><div className="flex items-center gap-1.5"><FaDollarSign /> Amount Paid</div></th>
+              <th><div className="flex items-center gap-1.5"><FaCalendarAlt /> Payment Date</div></th>
             </tr>
           </thead>
-          <tbody className="text-sm divide-y divide-gray-100">
-            {transactions.map((tx) => (
-              <tr key={tx.transactionId} className="hover:bg-gray-50/70 transition-colors">
-                <td className="p-4 font-mono text-xs text-indigo-600 font-bold">{tx.transactionId}</td>
-                <td className="p-4 font-medium text-gray-800">{tx.ticketTitle}</td>
-                <td className="p-4 font-bold text-blue-600">৳{tx.amount}</td>
-                <td className="p-4 text-gray-500">{new Date(tx.paymentDate).toLocaleDateString()}</td>
-              </tr>
-            ))}
-            {transactions.length === 0 && (
+          <tbody>
+            {payments.length === 0 ? (
               <tr>
-                <td colSpan="4" className="text-center p-8 text-gray-400">
-                  No successful transactions found.
+                <td colSpan="4" className="text-center py-12 text-gray-400 font-medium">
+                  No verified billing records found in your archive.
                 </td>
               </tr>
+            ) : (
+              payments.map((pay) => (
+                <tr key={pay._id} className="hover:bg-base-200/40 transition-colors">
+                  <td className="font-mono font-bold text-xs text-primary tracking-wide">
+                    {pay.transactionId}
+                  </td>
+                  <td className="font-bold text-base-content max-w-[240px] truncate">
+                    {pay.ticketTitle}
+                  </td>
+                  <td className="font-extrabold text-success">
+                    ${Number(pay.amount).toFixed(2)}
+                  </td>
+                  <td className="text-xs font-semibold text-gray-400">
+                    {new Date(pay.paymentDate).toLocaleString("en-US", {
+                      dateStyle: "medium",
+                      timeStyle: "short",
+                    })}
+                  </td>
+                </tr>
+              ))
             )}
           </tbody>
         </table>

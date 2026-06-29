@@ -31,13 +31,17 @@ export const getVendorBookings = async (vendorEmail) => {
   return res.data;
 };
 
-// Update Booking Status (Accept / Reject)
-export const updateBookingStatus = async (id, status) => {
-  
-  const res = await api.patch(`/bookings/status/${id}`, { status });
-  return res.data;
-};
 
+// Update Booking Status based on Vendor action (Accept / Reject)
+export const updateBookingStatus = async (id, status) => {
+  // Requirement rule: Hit separate endpoints based on the action status string
+  const endpoint = status === "accepted" 
+    ? `/bookings/accept/${id}` 
+    : `/bookings/reject/${id}`;
+
+  const response = await api.patch(endpoint);
+  return response.data;
+};
 
 // ----- Admins -------
 
@@ -52,15 +56,29 @@ export const updateTicketVerification = async (id, verificationStatus) => {
   const res = await api.patch(`/tickets/admin/status/${id}`, { verificationStatus });
   return res.data;
 };
+// Approve Ticket
+export const approveTicket = async (id) => {
+  const { data } = await api.patch(`/tickets/approve/${id}`);
+  return data;
+};
+
+// Reject Ticket
+export const rejectTicket = async (id) => {
+  const { data } = await api.patch(`/tickets/reject/${id}`);
+  return data;
+};
+
+
+
 
 // --- Advertise Tickets API ---
 export const getApprovedTickets = async () => {
-  const res = await api.get("/tickets/admin/approved");
-  return res.data;
+  const response = await api.get("/approved-tickets");
+  return response.data || []; 
 };
 
 // (Advertise / Unadvertise)
 export const toggleTicketAdvertisement = async (id, isAdvertised) => {
-  const res = await api.patch(`/tickets/admin/advertise/${id}`, { isAdvertised });
+  const res = await api.patch(`tickets/advertise/${id}`, { isAdvertised });
   return res.data;
 };

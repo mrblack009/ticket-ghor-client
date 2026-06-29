@@ -1,57 +1,71 @@
 import Swal from "sweetalert2";
 import useAllTickets from "../../../hooks/useAllTickets";
-import { updateTicketVerification } from "../../../api/ticketsApi";
+
 import Loader from "../../../components/Shared/Loader/Loader";
+import {
+  approveTicket,
+  rejectTicket,
+} from "../../../api/ticketsApi";
 
 const ManageTickets = () => {
   const { tickets, setTickets, loading } = useAllTickets();
   console.log(tickets);
 
   const handleStatusChange = async (id, status) => {
-    // ইউজার থেকে কনফার্মেশন নেওয়ার জন্য SweetAlert2 পপআপ
-    const result = await Swal.fire({
-      title: `Are you sure?`,
-      text: `You want to mark this ticket as ${status}?`,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: status === "approved" ? "#22c55e" : "#ef4444", // স্ট্যাটাস অনুযায়ী বাটনের কালার চেঞ্জ
-      cancelButtonColor: "#6b7280",
-      confirmButtonText: `Yes, ${status}!`,
-    });
+  const result = await Swal.fire({
+    title: "Are you sure?",
+    text: `You want to ${status} this ticket?`,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor:
+      status === "approved" ? "#22c55e" : "#ef4444",
+    cancelButtonColor: "#6b7280",
+    confirmButtonText: "Yes",
+  });
 
-    if (result.isConfirmed) {
-      try {
-        // ব্যাকএন্ড API কল করা হচ্ছে
-        const response = await updateTicketVerification(id, status);
+  if (!result.isConfirmed) return;
 
-        if (response.modifiedCount > 0 || response.success) {
-          // UI (State) আপডেট করা হচ্ছে যাতে রিলোড ছাড়াই ডাটা চেঞ্জ দেখা যায়
-          const updatedTickets = tickets.map((ticket) =>
-            ticket._id === id
-              ? { ...ticket, verificationStatus: status }
-              : ticket,
-          );
-          setTickets(updatedTickets);
+  try {
+    let response;
 
-          // সফল হওয়ার মেসেজ
-          Swal.fire({
-            title: "Updated!",
-            text: `Ticket has been ${status} successfully.`,
-            icon: "success",
-            timer: 2000,
-            showConfirmButton: false,
-          });
-        }
-      } catch (error) {
-        console.error("Error updating ticket status:", error);
-        Swal.fire({
-          title: "Error!",
-          text: "Something went wrong while updating the status.",
-          icon: "error",
-        });
-      }
+    if (status === "approved") {
+      response = await approveTicket(id);
+    } else {
+      response = await rejectTicket(id);
     }
-  };
+
+    if (response.success || response.modifiedCount > 0) {
+      setTickets((prev) =>
+        prev.map((ticket) =>
+          ticket._id === id
+            ? {
+                ...ticket,
+                verificationStatus: status,
+              }
+            : ticket
+        )
+      );
+
+      Swal.fire({
+        icon: "success",
+        title:
+          status === "approved"
+            ? "Ticket Approved!"
+            : "Ticket Rejected!",
+        timer: 1800,
+        showConfirmButton: false,
+      });
+    }
+  } catch (error) {
+    console.error(error);
+
+    Swal.fire({
+      icon: "error",
+      title: "Oops!",
+      text: "Failed to update ticket status.",
+    });
+  }
+};
 
   if (loading) {
     return <Loader />;

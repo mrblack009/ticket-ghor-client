@@ -1,43 +1,61 @@
 import { useEffect, useState } from "react";
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend } from "recharts";
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  Legend,
+} from "recharts";
 import { FaTicketAlt, FaShoppingBag, FaDollarSign } from "react-icons/fa";
 import useAuth from "../../../hooks/useAuth";
 import api from "../../../api/api";
 import Loader from "../../../components/Shared/Loader/Loader";
 
-
 const RevenueOverview = () => {
   const { user } = useAuth();
-  const [stats, setStats] = useState({ totalTickets: 0, totalSold: 0, totalRevenue: 0 });
+  const [stats, setStats] = useState({
+    totalTickets: 0,
+    totalSold: 0,
+    totalRevenue: 0,
+  });
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // 🛠️ Replace the inner logic of your useEffect with this:
   useEffect(() => {
     if (user?.email) {
-      // সার্ভার থেকে ভেন্ডরের রেভিনিউ এবং টিকিট ডাটা আনা
-      api.get(`/vendor/revenue/${user.email}`)
+      api
+        .get(`/vendor/revenue/${user.email}`)
         .then((res) => {
-          const tickets = res.data || [];
-          
-          // ১. কার্ডের জন্য টোটাল হিসাব বের করা
+          const ticketsAnalytics = res.data || [];
+
           let totalTickets = 0;
           let totalSold = 0;
           let totalRevenue = 0;
 
-          const formattedChartData = tickets.map((ticket) => {
+          const formattedChartData = ticketsAnalytics.map((ticket) => {
             const soldCount = ticket.sold || 0;
-            const revenue = soldCount * Number(ticket.price);
+            const currentRevenue = ticket.revenue || 0;
 
-            totalTickets += Number(ticket.quantity);
+            // Accumulate general dashboard metrics safely
+            totalTickets += Number(ticket.quantity || 0);
             totalSold += soldCount;
-            totalRevenue += revenue;
+            totalRevenue += currentRevenue;
 
-            // চার্টের জন্য ডেটা ফরম্যাট করা (টিকিটের নাম ছোট করে দেখানো যাতে চার্ট সুন্দর লাগে)
+            // Format datasets exactly as Recharts components expect them
             return {
-              name: ticket.title.length > 15 ? ticket.title.slice(0, 12) + "..." : ticket.title,
+              name:
+                ticket.title.length > 15
+                  ? ticket.title.slice(0, 12) + "..."
+                  : ticket.title,
               "Tickets Added": ticket.quantity,
               "Tickets Sold": soldCount,
-              "Revenue ($)": revenue,
+              "Revenue ($)": currentRevenue,
             };
           });
 
@@ -53,7 +71,7 @@ const RevenueOverview = () => {
   }, [user]);
 
   if (loading) {
-    return <Loader />
+    return <Loader />;
   }
 
   return (
@@ -63,7 +81,8 @@ const RevenueOverview = () => {
           Revenue Overview
         </h2>
         <p className="text-sm text-gray-400 mt-1 text-center md:text-left">
-          Track your ticket statistics, sales volume, and total earnings at a glance.
+          Track your ticket statistics, sales volume, and total earnings at a
+          glance.
         </p>
       </div>
 
@@ -72,8 +91,12 @@ const RevenueOverview = () => {
         {/* Total Tickets Card */}
         <div className="flex items-center justify-between p-6 bg-base-100 border border-base-200 shadow-xl rounded-2xl">
           <div>
-            <p className="text-sm font-semibold text-gray-400 uppercase tracking-wider">Total Tickets Added</p>
-            <h3 className="text-3xl font-black mt-1 text-primary">{stats.totalTickets}</h3>
+            <p className="text-sm font-semibold text-gray-400 uppercase tracking-wider">
+              Total Tickets Added
+            </p>
+            <h3 className="text-3xl font-black mt-1 text-primary">
+              {stats.totalTickets}
+            </h3>
           </div>
           <div className="p-4 bg-primary/10 text-primary rounded-xl">
             <FaTicketAlt size={28} />
@@ -83,8 +106,12 @@ const RevenueOverview = () => {
         {/* Total Sold Card */}
         <div className="flex items-center justify-between p-6 bg-base-100 border border-base-200 shadow-xl rounded-2xl">
           <div>
-            <p className="text-sm font-semibold text-gray-400 uppercase tracking-wider">Total Tickets Sold</p>
-            <h3 className="text-3xl font-black mt-1 text-secondary">{stats.totalSold}</h3>
+            <p className="text-sm font-semibold text-gray-400 uppercase tracking-wider">
+              Total Tickets Sold
+            </p>
+            <h3 className="text-3xl font-black mt-1 text-secondary">
+              {stats.totalSold}
+            </h3>
           </div>
           <div className="p-4 bg-secondary/10 text-secondary rounded-xl">
             <FaShoppingBag size={28} />
@@ -94,8 +121,12 @@ const RevenueOverview = () => {
         {/* Total Revenue Card */}
         <div className="flex items-center justify-between p-6 bg-base-100 border border-base-200 shadow-xl rounded-2xl">
           <div>
-            <p className="text-sm font-semibold text-gray-400 uppercase tracking-wider">Total Revenue</p>
-            <h3 className="text-3xl font-black mt-1 text-success">${stats.totalRevenue.toFixed(2)}</h3>
+            <p className="text-sm font-semibold text-gray-400 uppercase tracking-wider">
+              Total Revenue
+            </p>
+            <h3 className="text-3xl font-black mt-1 text-success">
+              ${stats.totalRevenue.toFixed(2)}
+            </h3>
           </div>
           <div className="p-4 bg-success/10 text-success rounded-xl">
             <FaDollarSign size={28} />
@@ -105,20 +136,44 @@ const RevenueOverview = () => {
 
       {/* 📊 2. CHARTS SECTION */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        
         {/* Ticket Analytics (Bar Chart) */}
         <div className="p-6 bg-base-100 border border-base-200 shadow-xl rounded-2xl">
-          <h4 className="text-lg font-bold mb-4 text-gray-500 uppercase tracking-wide">Ticket Inventory vs Sales</h4>
+          <h4 className="text-lg font-bold mb-4 text-gray-500 uppercase tracking-wide">
+            Ticket Inventory vs Sales
+          </h4>
           <div className="w-full h-80">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <BarChart
+                data={chartData}
+                margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+              >
                 <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
-                <XAxis dataKey="name" stroke="#888888" fontSize={11} tickLine={false} />
+                <XAxis
+                  dataKey="name"
+                  stroke="#888888"
+                  fontSize={11}
+                  tickLine={false}
+                />
                 <YAxis stroke="#888888" fontSize={12} tickLine={false} />
-                <Tooltip contentStyle={{ backgroundColor: "#1f2937", borderRadius: "12px", border: "none", color: "#fff" }} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "#1f2937",
+                    borderRadius: "12px",
+                    border: "none",
+                    color: "#fff",
+                  }}
+                />
                 <Legend />
-                <Bar dataKey="Tickets Added" fill="hsl(var(--p))" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="Tickets Sold" fill="hsl(var(--s))" radius={[4, 4, 0, 0]} />
+                <Bar
+                  dataKey="Tickets Added"
+                  fill="hsl(var(--p))"
+                  radius={[4, 4, 0, 0]}
+                />
+                <Bar
+                  dataKey="Tickets Sold"
+                  fill="hsl(var(--s))"
+                  radius={[4, 4, 0, 0]}
+                />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -126,27 +181,50 @@ const RevenueOverview = () => {
 
         {/* Revenue Generation (Area Chart) */}
         <div className="p-6 bg-base-100 border border-base-200 shadow-xl rounded-2xl">
-          <h4 className="text-lg font-bold mb-4 text-gray-500 uppercase tracking-wide">Revenue Performance ($)</h4>
+          <h4 className="text-lg font-bold mb-4 text-gray-500 uppercase tracking-wide">
+            Revenue Performance ($)
+          </h4>
           <div className="w-full h-80">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+              <AreaChart
+                data={chartData}
+                margin={{ top: 10, right: 10, left: -10, bottom: 0 }}
+              >
                 <defs>
                   <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#22c55e" stopOpacity={0.4}/>
-                    <stop offset="95%" stopColor="#22c55e" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#22c55e" stopOpacity={0.4} />
+                    <stop offset="95%" stopColor="#22c55e" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
-                <XAxis dataKey="name" stroke="#888888" fontSize={11} tickLine={false} />
+                <XAxis
+                  dataKey="name"
+                  stroke="#888888"
+                  fontSize={11}
+                  tickLine={false}
+                />
                 <YAxis stroke="#888888" fontSize={12} tickLine={false} />
-                <Tooltip contentStyle={{ backgroundColor: "#1f2937", borderRadius: "12px", border: "none", color: "#fff" }} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "#1f2937",
+                    borderRadius: "12px",
+                    border: "none",
+                    color: "#fff",
+                  }}
+                />
                 <Legend />
-                <Area type="monotone" dataKey="Revenue ($)" stroke="#22c55e" strokeWidth={3} fillOpacity={1} fill="url(#colorRevenue)" />
+                <Area
+                  type="monotone"
+                  dataKey="Revenue ($)"
+                  stroke="#22c55e"
+                  strokeWidth={3}
+                  fillOpacity={1}
+                  fill="url(#colorRevenue)"
+                />
               </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
-
       </div>
     </div>
   );

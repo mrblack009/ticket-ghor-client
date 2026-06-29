@@ -1,21 +1,32 @@
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
-import useAuth from "../../../hooks/useAuth";
-import { getVendorBookings, updateBookingStatus } from "../../../api/ticketsApi";
-import Loader from "../../../components/Shared/Loader/Loader";
 
+import Loader from "../../../components/Shared/Loader/Loader";
+import {
+  FaUser,
+  FaTicketAlt,
+  FaCoins,
+  FaCheckCircle,
+  FaTimesCircle,
+  FaHourglassHalf,
+} from "react-icons/fa";
+import {
+  getVendorBookings,
+  updateBookingStatus,
+} from "../../../api/ticketsApi";
+import useAuth from "../../../hooks/useAuth";
 
 const RequestedBookings = () => {
   const { user } = useAuth();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // প্রথমবার পেজ লোড হলে ভেন্ডরের ইমেইল দিয়ে বুকিং রিকোয়েস্টগুলো আনা
+  // Fetch all incoming requested bookings tied to this specific logged-in vendor account
   useEffect(() => {
     if (user?.email) {
       getVendorBookings(user.email)
         .then((data) => {
-          setBookings(data);
+          setBookings(data || []);
           setLoading(false);
         })
         .catch((err) => {
@@ -25,28 +36,28 @@ const RequestedBookings = () => {
     }
   }, [user]);
 
-  // Accept এবং Reject হ্যান্ডলার (Technique 1: Reload-less State Update)
+  // Handle the patch mutation event when a vendor clicks Accept or Reject
   const handleStatusChange = async (id, status) => {
     try {
+      // This will now automatically call the correct separate backend route via ticketsApi
       const res = await updateBookingStatus(id, status);
-      
-      // আপনার ব্যাকএন্ড রেসপন্স যদি modifiedCount বা success রিটার্ন করে
-      if (res.modifiedCount > 0 || res.success) {
+
+      if (res.success || res.modifiedCount > 0) {
         Swal.fire({
           icon: "success",
           title: `Booking ${status === "accepted" ? "Accepted" : "Rejected"}`,
           timer: 1500,
           showConfirmButton: false,
         });
-        
-        // 🔥 রিলোড ছাড়া ইনস্ট্যান্ট ফ্রন্টএন্ড স্টেট আপডেট
+
+        // Instant UI update without reloading
         setBookings((prevBookings) =>
           prevBookings.map((booking) =>
-            booking._id === id ? { ...booking, bookingStatus: status } : booking
-          )
+            booking._id === id
+              ? { ...booking, bookingStatus: status }
+              : booking,
+          ),
         );
-      } else {
-        throw new Error("Failed to update status in database");
       }
     } catch (err) {
       Swal.fire({
@@ -57,12 +68,49 @@ const RequestedBookings = () => {
     }
   };
 
+  // Status mapping helper function for beautiful badge representations
+  const renderStatusBadge = (status) => {
+    switch (status) {
+      case "pending":
+        return (
+          <span className="badge badge-warning gap-1 text-xs font-bold py-2.5 uppercase text-white">
+            <FaHourglassHalf /> Pending
+          </span>
+        );
+      case "accepted":
+        return (
+          <span className="badge badge-success gap-1 text-xs font-bold py-2.5 uppercase text-white">
+            <FaCheckCircle /> Accepted
+          </span>
+        );
+      case "rejected":
+        return (
+          <span className="badge badge-error gap-1 text-xs font-bold py-2.5 uppercase text-white">
+            <FaTimesCircle /> Rejected
+          </span>
+        );
+      case "paid":
+        return (
+          <span className="badge badge-info gap-1 text-xs font-bold py-2.5 uppercase text-white">
+            <FaCheckCircle /> Paid
+          </span>
+        );
+      default:
+        return (
+          <span className="badge badge-ghost py-2.5 uppercase text-xs">
+            {status}
+          </span>
+        );
+    }
+  };
+
   if (loading) {
-    return <Loader />
+    return <Loader />;
   }
 
   return (
     <div className="max-w-6xl mx-auto p-6 bg-base-100 shadow-xl rounded-2xl border border-base-200 mt-10">
+      {/* Page Header Titles */}
       <div className="mb-6">
         <h2 className="text-3xl font-black tracking-tight text-center">
           Requested Bookings
@@ -71,72 +119,97 @@ const RequestedBookings = () => {
           Manage and review all ticket booking requests from users.
         </p>
       </div>
-      
+
+      {/* Data Presentation Table View responsive block Container */}
       <div className="overflow-x-auto w-full rounded-xl border border-base-200">
         <table className="table w-full">
-          {/* Table Head */}
           <thead>
             <tr className="bg-base-200 text-sm">
-              <th>User Info</th>
-              <th>Ticket Title</th>
+              <th>
+                <div className="flex items-center gap-1.5">
+                  <FaUser /> User Info
+                </div>
+              </th>
+              <th>
+                <div className="flex items-center gap-1.5">
+                  <FaTicketAlt /> Ticket Title
+                </div>
+              </th>
               <th className="text-center">Booking Quantity</th>
-              <th>Total Price</th>
-              <th className="text-center">Actions</th>
+              <th>
+                <div className="flex items-center gap-1.5">
+                  <FaCoins /> Total Price
+                </div>
+              </th>
+              <th className="text-center">Actions / Status</th>
             </tr>
           </thead>
-          
-          {/* Table Body */}
+
           <tbody>
             {bookings.length === 0 ? (
               <tr>
-                <td colSpan="5" className="text-center py-10 text-gray-400 font-medium">
+                <td
+                  colSpan="5"
+                  className="text-center py-10 text-gray-400 font-medium"
+                >
                   No booking requests available at this moment.
                 </td>
               </tr>
             ) : (
               bookings.map((booking) => (
-                <tr key={booking._id} className="hover:bg-base-200/50 transition-colors">
-                  {/* User name/email */}
+                <tr
+                  key={booking._id}
+                  className="hover:bg-base-200/50 transition-colors"
+                >
+                  {/* User Profile Columns */}
                   <td>
-                    <div className="font-bold text-base">{booking.userName || "Guest User"}</div>
-                    <div className="text-xs opacity-60 font-semibold">{booking.userEmail}</div>
+                    <div className="font-bold text-base">
+                      {booking.userName || "Guest User"}
+                    </div>
+                    <div className="text-xs opacity-60 font-semibold">
+                      {booking.userEmail}
+                    </div>
                   </td>
-                  
-                  {/* Ticket title */}
+
+                  {/* Associated Ticket Info References */}
                   <td className="font-semibold text-primary max-w-xs truncate">
                     {booking.ticketTitle}
                   </td>
-                  
-                  {/* Booking Quantity */}
+
+                  {/* Order Ticket Volume Counters */}
                   <td className="text-center font-extrabold text-base">
                     {booking.quantity}
                   </td>
-                  
-                  {/* Total price (unit price * Booking Quantity) */}
+
+                  {/* Consolidated Invoice Pricing metrics */}
                   <td className="font-bold text-success text-base">
-                    ${(Number(booking.price) * Number(booking.quantity)).toFixed(2)}
+                    {/* Kept fallback calculation safe but preferred backend calculated booking.totalPrice if exists */}
+                    $
+                    {Number(
+                      booking.totalPrice || booking.price * booking.quantity,
+                    ).toFixed(2)}
                   </td>
-                  
-                  {/* Actions Column */}
+
+                  {/* Conditional Render Operations Grid Matrix */}
                   <td>
                     <div className="flex gap-2 justify-center items-center min-h-[40px]">
-                      {/* যদি আগে থেকেই স্ট্যাটাস থাকে কিংবা ইনস্ট্যান্ট চেঞ্জ হয় */}
-                      {booking.bookingStatus ? (
-                        <span className={`badge p-3 font-bold uppercase text-xs tracking-wider text-white shadow-sm ${
-                          booking.bookingStatus === "accepted" ? "badge-success" : "badge-error"
-                        }`}>
-                          {booking.bookingStatus}
-                        </span>
+                      {/* 🛠️ FIX: Only hide action options if status moves out of the initial 'pending' state */}
+                      {booking.bookingStatus !== "pending" ? (
+                        renderStatusBadge(booking.bookingStatus)
                       ) : (
                         <>
                           <button
-                            onClick={() => handleStatusChange(booking._id, "accepted")}
+                            onClick={() =>
+                              handleStatusChange(booking._id, "accepted")
+                            }
                             className="btn btn-sm btn-success text-white px-4 font-bold shadow-md shadow-success/20 transition-all hover:scale-105"
                           >
                             Accept
                           </button>
                           <button
-                            onClick={() => handleStatusChange(booking._id, "rejected")}
+                            onClick={() =>
+                              handleStatusChange(booking._id, "rejected")
+                            }
                             className="btn btn-sm btn-error text-white px-4 font-bold shadow-md shadow-error/20 transition-all hover:scale-105"
                           >
                             Reject
