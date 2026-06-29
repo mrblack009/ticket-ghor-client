@@ -17,89 +17,144 @@ import RevenueOverview from "../pages/Dashboard/VendorDashboard/RevenueOverview"
 import AdvertiseTickets from "../pages/Dashboard/AdminDashboard/AdvertiseTickets";
 import TicketDetails from "../pages/AllTicketPages/TicketDetails";
 import AllTicketsPage2 from "../pages/AllTicketPages/AllTicketPage2";
+import PrivateRoute from "./PrivateRoute";
+import AdminRoute from "./AdminRoute";
+import VendorRoute from "./VendorRoute";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <MainLayout />,
     children: [
-        {
-            index: true,
-            Component: Home,
-        },
-        {
-          path: "/all-tickets",
-          Component: AllTicketsPage2,
-        },
-        {
-          path: "/ticket/:id",
-          Component: TicketDetails,
-        }
-    ]
+      {
+        index: true,
+        Component: Home,
+      },
+      {
+        path: "/all-tickets",
+        Component: AllTicketsPage2,
+      },
+      {
+        path: "/ticket/:id",
+        element: (
+          <PrivateRoute>
+            {" "}
+            <TicketDetails />{" "}
+          </PrivateRoute>
+        ),
+      },
+    ],
   },
   {
-    path:"/login",
+    path: "/login",
     Component: Login,
   },
   {
     path: "/register",
-    Component: Register
+    Component: Register,
   },
   {
     path: "/dashboard",
     Component: DashboardLayout,
     children: [
       {
-        index:true,
-        Component: UserProfile,
+        index: true,
+        element: (
+          <PrivateRoute>
+            <UserProfile />{" "}
+          </PrivateRoute>
+        ),
       },
       {
-        path:"booked-tickets",
-        Component: MyBookedTickets,
+        path: "booked-tickets",
+        element: (
+          <PrivateRoute>
+            <MyBookedTickets />{" "}
+          </PrivateRoute>
+        ),
       },
       {
-        path:"transaction-history",
-        Component: TransactionHistory,
+        path: "transaction-history",
+        element: (
+          <PrivateRoute>
+            <TransactionHistory />{" "}
+          </PrivateRoute>
+        ),
       },
       {
-        path:"admin-profile",
-        Component: AdminProfile,
+        path: "admin-profile",
+        element: (
+          <AdminRoute>
+            <AdminProfile />
+          </AdminRoute>
+        ),
       },
       {
-        path:"manage-tickets",
-        Component: ManageTickets,
+        path: "manage-tickets",
+        element: (
+          <AdminRoute>
+            <ManageTickets />
+          </AdminRoute>
+        ),
       },
       {
-        path:"manage-users",
-        Component: ManageUsers,
+        path: "manage-users",
+        element: (
+          <AdminRoute>
+            <ManageUsers />
+          </AdminRoute>
+        ),
       },
       {
-        path:"vendor-profile",
-        Component: UserProfile,
+        path: "advertise-tickets",
+        element: (
+          <AdminRoute>
+            <AdvertiseTickets />{" "}
+          </AdminRoute>
+        ),
       },
       {
-        path:"add-ticket",
-        Component: AddTicket,
+        path: "vendor-profile",
+        element: (
+          <VendorRoute>
+            <UserProfile />
+          </VendorRoute>
+        ),
       },
       {
-        path:"my-added-tickets",
-        Component: MyAddedTickets,
+        path: "add-ticket",
+        element: (
+          <VendorRoute>
+            <AddTicket />
+          </VendorRoute>
+        ),
       },
       {
-        path:"requested-bookings",
-        Component: RequestedBookings,
+        path: "my-added-tickets",
+        element: (
+          <VendorRoute>
+            <MyAddedTickets />
+          </VendorRoute>
+        ),
       },
       {
-        path:"revenue-overview",
-        Component: RevenueOverview,
+        path: "requested-bookings",
+        element: (
+          <VendorRoute>
+            <RequestedBookings />
+          </VendorRoute>
+        ),
       },
       {
-        path:"advertise-tickets",
-        Component: AdvertiseTickets,
+        path: "revenue-overview",
+        element: (
+          <VendorRoute>
+            <RevenueOverview />
+          </VendorRoute>
+        ),
       },
-
-    ]
-  }
+    ],
+  },
 ]);
 
 export default router;
